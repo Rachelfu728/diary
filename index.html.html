@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rachel 甲級體重管理師｜每日陪伴日記</title>
+<style>
+  :root{
+    --leaf:#4a7c59;
+    --leaf-deep:#2f5d43;
+    --leaf-light:#e8f1ea;
+    --cream:#fbfaf5;
+    --paper:#ffffff;
+    --ink:#2b332d;
+    --soft:#6f7a72;
+    --line:#dfe6e0;
+    --amber:#d99a3f;
+    --coral:#c76b5a;
+    --shadow:0 2px 12px rgba(47,93,67,0.08);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:"PingFang TC","Microsoft JhengHei","Noto Sans TC",sans-serif;
+    background:var(--cream);
+    color:var(--ink);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:20px 16px 60px}
+
+  header{text-align:center;padding:28px 0 20px}
+  header .logo{font-size:13px;letter-spacing:3px;color:var(--leaf);font-weight:600}
+  header h1{font-size:26px;color:var(--leaf-deep);margin:6px 0 4px;font-weight:700}
+  header p{color:var(--soft);font-size:14px}
+
+  /* 客戶選擇區 */
+  .client-bar{
+    background:var(--paper);border-radius:16px;padding:16px;
+    box-shadow:var(--shadow);margin-bottom:18px;
+  }
+  .client-bar label{font-size:13px;color:var(--soft);display:block;margin-bottom:8px}
+  .client-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  select,input,textarea{
+    font-family:inherit;font-size:15px;color:var(--ink);
+    border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;
+    background:var(--cream);outline:none;transition:border .15s;
+  }
+  select:focus,input:focus,textarea:focus{border-color:var(--leaf)}
+  select{flex:1;min-width:160px;cursor:pointer}
+  .btn{
+    border:none;border-radius:10px;padding:10px 16px;font-size:14px;
+    font-weight:600;cursor:pointer;font-family:inherit;transition:.15s;
+  }
+  .btn-primary{background:var(--leaf);color:#fff}
+  .btn-primary:hover{background:var(--leaf-deep)}
+  .btn-ghost{background:var(--leaf-light);color:var(--leaf-deep)}
+  .btn-ghost:hover{background:#d8e7db}
+  .btn-sm{padding:7px 12px;font-size:13px}
+
+  .start-date{font-size:13px;color:var(--soft);margin-top:10px}
+  .start-date b{color:var(--leaf-deep)}
+  .day-count{
+    display:inline-block;background:var(--leaf-light);color:var(--leaf-deep);
+    border-radius:20px;padding:3px 12px;font-size:13px;font-weight:600;margin-left:6px;
+  }
+
+  /* 卡片 */
+  .card{
+    background:var(--paper);border-radius:16px;padding:22px 20px;
+    box-shadow:var(--shadow);margin-bottom:16px;
+  }
+  .card h2{font-size:17px;color:var(--leaf-deep);margin-bottom:4px}
+  .card .date-line{font-size:13px;color:var(--soft);margin-bottom:18px}
+
+  .field{margin-bottom:18px}
+  .field-label{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .field-label .ico{font-size:16px}
+  .field-hint{font-size:12px;color:var(--soft);font-weight:400}
+
+  /* 計數器 */
+  .counter{display:flex;align-items:center;gap:12px}
+  .counter button{
+    width:38px;height:38px;border-radius:10px;border:1.5px solid var(--line);
+    background:var(--cream);font-size:20px;color:var(--leaf);cursor:pointer;font-weight:600;
+  }
+  .counter button:hover{background:var(--leaf-light);border-color:var(--leaf)}
+  .counter .val{font-size:20px;font-weight:700;color:var(--leaf-deep);min-width:36px;text-align:center}
+  .counter .unit{font-size:13px;color:var(--soft)}
+
+  /* 是否切換 */
+  .toggle-group{display:flex;gap:8px}
+  .toggle-group .opt{
+    flex:1;text-align:center;padding:10px;border-radius:10px;border:1.5px solid var(--line);
+    background:var(--cream);cursor:pointer;font-size:14px;font-weight:600;color:var(--soft);transition:.15s;
+  }
+  .toggle-group .opt.yes.active{background:var(--leaf);color:#fff;border-color:var(--leaf)}
+  .toggle-group .opt.no.active{background:var(--coral);color:#fff;border-color:var(--coral)}
+  .toggle-group .opt.active:not(.yes):not(.no){background:var(--amber);color:#fff;border-color:var(--amber)}
+
+  .num-input{width:110px}
+  .inline-fields{display:flex;gap:20px;flex-wrap:wrap}
+  .inline-fields .field{flex:1;min-width:130px;margin-bottom:0}
+  textarea{width:100%;resize:vertical;min-height:70px}
+
+  .save-row{display:flex;gap:10px;margin-top:8px}
+  .save-row .btn{flex:1}
+
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--leaf-deep);color:#fff;padding:12px 22px;border-radius:24px;
+    font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:.3s;box-shadow:0 6px 20px rgba(0,0,0,.2);
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  /* 歷史紀錄 */
+  .history-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .history-head h2{margin:0}
+  .log{border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px;background:var(--cream)}
+  .log-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .log-date{font-weight:700;color:var(--leaf-deep);font-size:15px}
+  .log-day{font-size:12px;color:var(--leaf);background:var(--leaf-light);padding:2px 8px;border-radius:12px}
+  .log-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;font-size:13px}
+  .log-item{background:#fff;border-radius:8px;padding:6px 10px;border:1px solid var(--line)}
+  .log-item .k{color:var(--soft);font-size:11px;display:block}
+  .log-item .v{font-weight:700;color:var(--ink)}
+  .log-note{margin-top:8px;font-size:13px;color:var(--soft);background:#fff;border-radius:8px;padding:8px 10px}
+  .del-log{background:none;border:none;color:var(--coral);font-size:12px;cursor:pointer}
+  .empty{text-align:center;color:var(--soft);padding:30px 10px;font-size:14px}
+
+  .manage{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .tip{font-size:12px;color:var(--soft);text-align:center;margin-top:24px;line-height:1.8}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">RACHEL 甲級體重管理師</div>
+    <h1>每日陪伴日記</h1>
+    <p>一天一次,把今天的自己記下來</p>
+  </header>
+
+  <!-- 首次設定 (只出現一次) -->
+  <div class="client-bar" id="setupBar">
+    <label>第一次使用，請先填寫</label>
+    <div class="client-row">
+      <input type="text" id="setupName" placeholder="您的姓名" style="flex:1;min-width:160px">
+    </div>
+    <div class="client-row" style="margin-top:8px">
+      <label style="margin:0 8px 0 0;align-self:center">計畫開始日</label>
+      <input type="date" id="setupDate" style="flex:1">
+    </div>
+    <div class="client-row" style="margin-top:12px">
+      <button class="btn btn-primary" onclick="finishSetup()" style="flex:1">開始我的陪伴日記</button>
+    </div>
+  </div>
+
+  <!-- 個人資訊列 (設定後顯示) -->
+  <div class="client-bar" id="infoBar" style="display:none">
+    <div class="start-date" id="startDateLine"></div>
+    <div class="manage">
+      <button class="btn btn-primary btn-sm" onclick="copyToday()">📋 複製今天的紀錄</button>
+    </div>
+    <div style="font-size:12px;color:var(--soft);margin-top:8px;line-height:1.7">
+      按下後會複製今天的紀錄，<br>再到 LINE 對話框「長按 → 貼上」傳給教練即可。
+    </div>
+  </div>
+
+  <!-- 每日填寫 -->
+  <div class="card" id="formCard">
+    <h2>今天的回報</h2>
+    <div class="date-line">
+      <input type="date" id="entryDate">
+      <span class="day-count" id="dayBadge"></span>
+    </div>
+
+    <div class="field">
+      <div class="field-label"><span class="ico">💧</span>今天喝多少水 <span class="field-hint">(每按一次 250ml)</span></div>
+      <div class="counter" data-key="water" data-step="250">
+        <button onclick="step(this,-1)">－</button>
+        <span class="val">0</span>
+        <button onclick="step(this,1)">＋</button>
+        <span class="unit">ml</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label"><span class="ico">🥤</span>今天喝幾次奶昔</div>
+      <div class="counter" data-key="shake">
+        <button onclick="step(this,-1)">－</button>
+        <span class="val">0</span>
+        <button onclick="step(this,1)">＋</button>
+        <span class="unit">次</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label"><span class="ico">💊</span>今天吃幾次錠片 <span class="field-hint">(目標3次)</span></div>
+      <div class="counter" data-key="tablet">
+        <button onclick="step(this,-1)">－</button>
+        <span class="val">0</span>
+        <button onclick="step(this,1)">＋</button>
+        <span class="unit">次</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label"><span class="ico">🥗</span>有注意飲食順序嗎 <span class="field-hint">(菜→肉→飯)</span></div>
+      <div class="toggle-group" data-key="order">
+        <div class="opt yes" onclick="pick(this,'yes')">有做到</div>
+        <div class="opt no" onclick="pick(this,'no')">沒注意</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label"><span class="ico">🍪</span>今天有偷吃零食嗎</div>
+      <div class="toggle-group" data-key="snack">
+        <div class="opt no" onclick="pick(this,'yes')" style="border-color:var(--line)">沒有</div>
+        <div class="opt yes" onclick="pick(this,'no')" style="border-color:var(--line)">有偷吃</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label"><span class="ico">🚽</span>今天有排便嗎</div>
+      <div class="inline-fields">
+        <div class="field" style="margin-bottom:0">
+          <div class="toggle-group" data-key="poop">
+            <div class="opt yes" onclick="pick(this,'yes')">有</div>
+            <div class="opt no" onclick="pick(this,'no')">沒有</div>
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <div class="field-label" style="font-weight:400;font-size:13px;color:var(--soft)">幾次</div>
+          <input type="number" min="0" class="num-input" id="poopTimes" placeholder="0">
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label"><span class="ico">😴</span>昨晚睡眠</div>
+      <div class="inline-fields">
+        <div class="field" style="margin-bottom:0;flex:0 0 auto">
+          <div class="field-label" style="font-weight:400;font-size:13px;color:var(--soft)">睡幾小時</div>
+          <input type="number" step="0.5" min="0" class="num-input" id="sleepHours" placeholder="0">
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <div class="field-label" style="font-weight:400;font-size:13px;color:var(--soft)">睡眠品質</div>
+          <div class="toggle-group" data-key="sleep">
+            <div class="opt yes" onclick="pick(this,'good')">好</div>
+            <div class="opt" onclick="pick(this,'ok')" style="border-color:var(--line)">普通</div>
+            <div class="opt no" onclick="pick(this,'bad')">差</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="inline-fields" style="margin-bottom:18px">
+      <div class="field" style="margin-bottom:0">
+        <div class="field-label"><span class="ico">⚖️</span>今天減輕 <span class="field-hint">(kg)</span></div>
+        <input type="number" step="0.1" class="num-input" id="weightDown" placeholder="0.0">
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <div class="field-label"><span class="ico">📉</span>體脂減少 <span class="field-hint">(%)</span></div>
+        <input type="number" step="0.1" class="num-input" id="fatDown" placeholder="0.0">
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label"><span class="ico">📝</span>其他 <span class="field-hint">(今天的心情、狀況、想跟教練說的話)</span></div>
+      <textarea id="note" placeholder="想說什麼都可以寫在這裡…"></textarea>
+    </div>
+
+    <div class="save-row">
+      <button class="btn btn-primary" onclick="saveEntry()">儲存今天的紀錄</button>
+      <button class="btn btn-ghost" onclick="clearForm()">清空重填</button>
+    </div>
+  </div>
+
+  <!-- 歷史 -->
+  <div class="card">
+    <div class="history-head">
+      <h2>歷史紀錄</h2>
+      <span class="day-count" id="totalDays"></span>
+    </div>
+    <div id="historyList"></div>
+  </div>
+
+  <p class="tip">
+    紀錄會自動存在這台裝置的瀏覽器裡。<br>
+    每位客戶各自獨立，切換客戶就能看到各自的進度。
+  </p>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const KEY = 'rachel_diary_v1';
+  let profile = load();
+
+  function load(){
+    try{ return JSON.parse(localStorage.getItem(KEY)) || null; }
+    catch(e){ return null; }
+  }
+  function save(){ localStorage.setItem(KEY, JSON.stringify(profile)); }
+
+  function toast(msg){
+    const t=document.getElementById('toast');
+    t.textContent=msg;t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'),1800);
+  }
+
+  function today(){
+    const d=new Date();
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  }
+
+  function init(){
+    document.getElementById('setupDate').value = today();
+    if(profile && profile.name){
+      showDiary();
+    }else{
+      document.getElementById('setupBar').style.display='block';
+      document.getElementById('infoBar').style.display='none';
+      document.getElementById('formCard').style.display='none';
+      document.querySelector('.history-head').parentElement.style.display='none';
+    }
+  }
+
+  function finishSetup(){
+    const name=document.getElementById('setupName').value.trim();
+    const date=document.getElementById('setupDate').value;
+    if(!name){toast('請填寫您的姓名');return;}
+    if(!date){toast('請選擇計畫開始日');return;}
+    profile={name,startDate:date,entries:[]};
+    save();
+    showDiary();
+    toast(name+'，開始囉！');
+  }
+
+  function showDiary(){
+    document.getElementById('setupBar').style.display='none';
+    document.getElementById('infoBar').style.display='block';
+    document.getElementById('formCard').style.display='block';
+    document.querySelector('.history-head').parentElement.style.display='block';
+    document.getElementById('startDateLine').innerHTML=
+      profile.name+'　計畫開始日：<b>'+profile.startDate+'</b>';
+    document.getElementById('entryDate').value=today();
+    updateDayBadge();
+    renderHistory();
+    clearForm(true);
+  }
+
+  function dayNumber(startDate, entryDate){
+    const s=new Date(startDate), e=new Date(entryDate);
+    return Math.floor((e-s)/86400000)+1;
+  }
+
+  document.getElementById('entryDate')?.addEventListener('change',updateDayBadge);
+  function updateDayBadge(){
+    const ed=document.getElementById('entryDate').value||today();
+    const n=dayNumber(profile.startDate,ed);
+    document.getElementById('dayBadge').textContent = n>0 ? '第 '+n+' 天' : '開始前';
+  }
+
+  // 計數器
+  function step(btn,dir){
+    const counter=btn.parentElement;
+    const val=counter.querySelector('.val');
+    const inc=parseInt(counter.dataset.step)||1;
+    let v=parseInt(val.textContent)+dir*inc;
+    if(v<0)v=0;
+    val.textContent=v;
+  }
+  function getCounter(key){
+    return parseInt(document.querySelector('.counter[data-key="'+key+'"] .val').textContent);
+  }
+  function setCounter(key,v){
+    document.querySelector('.counter[data-key="'+key+'"] .val').textContent=v||0;
+  }
+
+  // 是否
+  function pick(el,val){
+    const group=el.parentElement;
+    group.querySelectorAll('.opt').forEach(o=>o.classList.remove('active'));
+    el.classList.add('active');
+    group.dataset.val=val;
+  }
+  function getToggle(key){
+    const g=document.querySelector('.toggle-group[data-key="'+key+'"]');
+    return g.dataset.val||'';
+  }
+  function setToggle(key,val){
+    const g=document.querySelector('.toggle-group[data-key="'+key+'"]');
+    g.dataset.val=val||'';
+    g.querySelectorAll('.opt').forEach(o=>o.classList.remove('active'));
+    if(!val)return;
+    // snack toggle 的 yes/no 語意相反，用 onclick 傳的值對應
+    const opts=g.querySelectorAll('.opt');
+    opts.forEach(o=>{
+      const oc=o.getAttribute('onclick')||'';
+      if(oc.includes("'"+val+"'")) o.classList.add('active');
+    });
+  }
+
+  function clearForm(keepDate){
+    setCounter('water',0);setCounter('shake',0);setCounter('tablet',0);
+    setToggle('order','');setToggle('snack','');setToggle('poop','');setToggle('sleep','');
+    document.getElementById('poopTimes').value='';
+    document.getElementById('sleepHours').value='';
+    document.getElementById('weightDown').value='';
+    document.getElementById('fatDown').value='';
+    document.getElementById('note').value='';
+    if(!keepDate)document.getElementById('entryDate').value=today();
+    updateDayBadge();
+  }
+
+  function saveEntry(){
+    const c=profile;
+    const date=document.getElementById('entryDate').value;
+    if(!date){toast('請選擇日期');return;}
+    const entry={
+      date,
+      water:getCounter('water'),
+      shake:getCounter('shake'),
+      tablet:getCounter('tablet'),
+      order:getToggle('order'),
+      snack:getToggle('snack'),
+      poop:getToggle('poop'),
+      poopTimes:document.getElementById('poopTimes').value||'',
+      sleepHours:document.getElementById('sleepHours').value||'',
+      sleep:getToggle('sleep'),
+      weightDown:document.getElementById('weightDown').value||'',
+      fatDown:document.getElementById('fatDown').value||'',
+      note:document.getElementById('note').value.trim()
+    };
+    // 同一天覆蓋
+    const idx=c.entries.findIndex(e=>e.date===date);
+    if(idx>=0){
+      if(!confirm(date+' 已經有紀錄了，要覆蓋嗎？')) return;
+      c.entries[idx]=entry;
+    }else{
+      c.entries.push(entry);
+    }
+    c.entries.sort((a,b)=>b.date.localeCompare(a.date));
+    save();renderHistory();clearForm();
+    toast('已儲存 '+date+' 的紀錄');
+  }
+
+  function renderHistory(){
+    const c=profile;
+    const list=document.getElementById('historyList');
+    document.getElementById('totalDays').textContent='共 '+c.entries.length+' 天';
+    if(c.entries.length===0){
+      list.innerHTML='<div class="empty">還沒有紀錄，儲存今天的回報後會出現在這裡。</div>';
+      return;
+    }
+    list.innerHTML='';
+    c.entries.forEach((e,i)=>{
+      const n=dayNumber(c.startDate,e.date);
+      const orderTxt = e.order==='yes'?'有做到':e.order==='no'?'沒注意':'—';
+      const snackTxt = e.snack==='yes'?'沒偷吃':e.snack==='no'?'有偷吃':'—';
+      const poopTxt = e.poop==='yes'?('有'+(e.poopTimes?' '+e.poopTimes+'次':'')):e.poop==='no'?'沒有':'—';
+      const sleepQ = e.sleep==='good'?'好':e.sleep==='ok'?'普通':e.sleep==='bad'?'差':'';
+      const sleepTxt = (e.sleepHours||sleepQ) ? ((e.sleepHours?e.sleepHours+'小時':'')+(e.sleepHours&&sleepQ?'・':'')+sleepQ) : '—';
+      const div=document.createElement('div');
+      div.className='log';
+      div.innerHTML=`
+        <div class="log-top">
+          <div><span class="log-date">${e.date}</span> <span class="log-day">${n>0?'第'+n+'天':'開始前'}</span></div>
+          <button class="del-log" onclick="delEntry(${i})">刪除</button>
+        </div>
+        <div class="log-grid">
+          <div class="log-item"><span class="k">水</span><span class="v">${e.water} ml</span></div>
+          <div class="log-item"><span class="k">奶昔</span><span class="v">${e.shake} 次</span></div>
+          <div class="log-item"><span class="k">錠片</span><span class="v">${e.tablet} 次</span></div>
+          <div class="log-item"><span class="k">飲食順序</span><span class="v">${orderTxt}</span></div>
+          <div class="log-item"><span class="k">零食</span><span class="v">${snackTxt}</span></div>
+          <div class="log-item"><span class="k">排便</span><span class="v">${poopTxt}</span></div>
+          <div class="log-item"><span class="k">睡眠</span><span class="v">${sleepTxt}</span></div>
+          <div class="log-item"><span class="k">體重減輕</span><span class="v">${e.weightDown?e.weightDown+' kg':'—'}</span></div>
+          <div class="log-item"><span class="k">體脂減少</span><span class="v">${e.fatDown?e.fatDown+' %':'—'}</span></div>
+        </div>
+        ${e.note?`<div class="log-note">📝 ${e.note}</div>`:''}
+      `;
+      list.appendChild(div);
+    });
+  }
+
+  function delEntry(i){
+    const c=profile;
+    if(!confirm('刪除這天的紀錄？'))return;
+    c.entries.splice(i,1);save();renderHistory();toast('已刪除');
+  }
+
+  function buildTodayText(){
+    const c=profile;
+    const date=today();
+    const e=c.entries.find(x=>x.date===date);
+    if(!e) return null;
+    const n=dayNumber(c.startDate,e.date);
+    const sq=e.sleep==='good'?'好':e.sleep==='ok'?'普通':e.sleep==='bad'?'差':'';
+    let txt='【'+c.name+'】陪伴日記\n';
+    txt+='── '+e.date+'（第'+n+'天）──\n';
+    txt+='水 '+e.water+'ml｜奶昔 '+e.shake+'次｜錠片 '+e.tablet+'次\n';
+    txt+='飲食順序：'+(e.order==='yes'?'有做到':e.order==='no'?'沒注意':'—')+'｜';
+    txt+='零食：'+(e.snack==='yes'?'沒偷吃':e.snack==='no'?'有偷吃':'—')+'｜';
+    txt+='排便：'+(e.poop==='yes'?'有'+(e.poopTimes?e.poopTimes+'次':''):e.poop==='no'?'沒有':'—')+'\n';
+    txt+='睡眠：'+((e.sleepHours?e.sleepHours+'小時':'')+(e.sleepHours&&sq?'・':'')+sq || '—')+'\n';
+    txt+='體重減輕 '+(e.weightDown||'—')+'kg｜體脂減少 '+(e.fatDown||'—')+'%\n';
+    if(e.note)txt+='備註：'+e.note+'\n';
+    return txt;
+  }
+
+  function copyToday(){
+    const txt=buildTodayText();
+    if(!txt){
+      toast('今天還沒有紀錄，請先儲存今天的回報');
+      return;
+    }
+    const done=()=>toast('已複製！請到 LINE 貼上傳給教練');
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(done).catch(()=>fallbackCopy(txt,done));
+    }else{
+      fallbackCopy(txt,done);
+    }
+  }
+
+  function fallbackCopy(txt,cb){
+    const ta=document.createElement('textarea');
+    ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta);ta.focus();ta.select();
+    try{document.execCommand('copy');}catch(e){}
+    document.body.removeChild(ta);cb();
+  }
+
+  init();
+</script>
+</body>
+</html>
